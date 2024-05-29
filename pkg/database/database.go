@@ -3,7 +3,6 @@ package database
 import (
 	"context"
 	"log"
-	"os"
 	"time"
 
 	// "github.com/jackc/pgx/v5"

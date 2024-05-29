@@ -2,7 +2,7 @@
 -- +goose StatementBegin
 SELECT 'up SQL query';
 CREATE TABLE users (
-    Id INT PRIMARY KEY,
+    Id SERIAL PRIMARY KEY,
     Username VARCHAR NOT NULL UNIQUE,
     Email VARCHAR NOT NULL UNIQUE,
     Password VARCHAR NOT NULL
