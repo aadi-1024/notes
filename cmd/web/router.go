@@ -10,5 +10,11 @@ import (
 func SetupRouter(mux *chi.Mux) {
 	files := []string{"./templates/home.page.gohtml", "./templates/base.layout.gohtml"}
 	t := template.Must(template.ParseFiles(files...))
-	mux.Get("/", handlers.IndexPageHandler(t))
+
+	mux.Use(app.session.LoadAndSave)
+	mux.Post("/login", handlers.LoginPostHandler(app.db, app.session))
+	mux.Mount("/", mux.Group(func(r chi.Router) {
+		r.Use(AuthMiddleware)
+		r.Get("/", handlers.IndexPageHandler(t))
+	}))
 }
