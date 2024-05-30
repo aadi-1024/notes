@@ -15,7 +15,7 @@
     <div class="container-fluid">
       <a class="navbar-brand" href="#">Notes</a>
         {{if .LoggedIn}}
-        <button class="btn btn-danger" type="submit">Logout</button>
+        <button class="btn btn-danger" type="submit" hx-post="/logout" hx-swap="none">Logout</button>
         {{else}}
         <button class="btn btn-success" type="submit">Login</button>
         {{end}}

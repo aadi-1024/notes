@@ -16,7 +16,7 @@ func main() {
 	mux := chi.NewMux()
 
 	s := scs.New()
-	s.Lifetime = 3 * time.Minute
+	s.Lifetime = 30 * time.Minute
 	s.Cookie.Name = "sessionCookie"
 	app.session = s
 
