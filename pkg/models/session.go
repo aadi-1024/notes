@@ -3,10 +3,10 @@ package models
 import "encoding/gob"
 
 type Session struct {
-	LoggedIn  bool
-	SessionId string
-	User      *User
-	Notes     []*Note
+	LoggedIn bool
+	UserId   int
+	User     *User
+	Notes    []*Note
 }
 
 func init() {

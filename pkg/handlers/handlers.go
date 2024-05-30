@@ -9,12 +9,21 @@ import (
 	"github.com/alexedwards/scs/v2"
 )
 
-func IndexPageHandler(t *template.Template) http.HandlerFunc {
+func IndexPageHandler(t *template.Template, s *scs.SessionManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Content-Type", "text/html")
+		session := s.Get(r.Context(), "sessionData").(models.Session)
 		t.ExecuteTemplate(w, "home.page.gohtml", map[string]any{
-			"LoggedIn": true,
+			"LoggedIn": session.LoggedIn,
+			"Notes": session.Notes,
 		})
+	}
+}
+
+func LoginPageHandler(t *template.Template) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Content-Type", "text/html")
+		t.ExecuteTemplate(w, "login.page.gohtml", nil)
 	}
 }
 
@@ -46,8 +55,16 @@ func LoginPostHandler(db *database.Database, s *scs.SessionManager) http.Handler
 			return
 		}
 
-		s.Put(r.Context(), "userId", id)
-		w.Header().Set("Content-Type", "text/plain")
-		_, _ = w.Write([]byte("successful"))
+		user.Id = id
+		session := models.Session{
+			LoggedIn: true,
+			User: &user,
+			Notes: make([]*models.Note, 0),
+		}
+	
+		s.Put(r.Context(), "sessionData", session)
+		w.Header().Set("Content-Type", "text/html")
+		w.Header().Add("HX-Redirect", "/")
+		w.WriteHeader(http.StatusOK)
 	}
 }

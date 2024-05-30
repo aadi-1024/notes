@@ -1,0 +1,32 @@
+{{template "base" .}}
+
+{{define "title"}}Login{{end}}
+
+{{define "body"}}
+<br>
+<br>
+<br>
+<div class="mt-12 row">
+  <div class="col-6 mx-auto" id="formDiv">
+    <form id="loginForm" class="align-middle" hx-post="/login">
+      <label for="inputEmail" class="form-label">Email</label>
+      <input type="text" name="email" id="inputEmail" class="form-control">
+      <label for="inputPassword" class="form-label">Password</label>
+      <input type="password" name="password" id="inputPassword" class="form-control">
+      <button type="submit" class="btn btn-primary mx-auto mt-4">Submit</button>
+    </form>
+  </div>
+</div>
+<script>
+document.addEventListener("htmx:responseError", () => {
+  notie.alert({
+  type: "error",
+  text: "Error",
+  stay: true,
+  time: 3, 
+  position: "top"
+})
+
+})
+</script>
+{{end}}
