@@ -7,6 +7,7 @@ import (
 	"github.com/aadi-1024/notes/pkg/database"
 	"github.com/aadi-1024/notes/pkg/models"
 	"github.com/alexedwards/scs/v2"
+	"github.com/go-playground/validator/v10"
 )
 
 func IndexPageHandler(t *template.Template, s *scs.SessionManager) http.HandlerFunc {
@@ -31,7 +32,7 @@ func RegisterPageHandler(t *template.Template) http.HandlerFunc {
 	}
 }
 
-func RegisterPostHandler(db *database.Database) http.HandlerFunc {
+func RegisterPostHandler(db *database.Database, v *validator.Validate) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		err := r.ParseForm()
 		if err != nil {
@@ -46,6 +47,11 @@ func RegisterPostHandler(db *database.Database) http.HandlerFunc {
 			Username: username,
 			Email:    email,
 			Password: password,
+		}
+
+		if err := v.Struct(user); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 
 		if err = db.RegisterUser(user); err != nil {
@@ -66,12 +72,10 @@ func LoginPostHandler(db *database.Database, s *scs.SessionManager) http.Handler
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		username := r.PostFormValue("username")
 		email := r.PostFormValue("email")
 		password := r.PostFormValue("password")
 
 		user := models.User{
-			Username: username,
 			Email:    email,
 			Password: password,
 		}
@@ -91,7 +95,6 @@ func LoginPostHandler(db *database.Database, s *scs.SessionManager) http.Handler
 		session := models.Session{
 			LoggedIn: true,
 			User:     &user,
-			Notes:    make([]*models.Note, 0),
 		}
 
 		s.Put(r.Context(), "sessionData", session)
@@ -115,5 +118,33 @@ func LogoutPostHandler(s *scs.SessionManager) http.HandlerFunc {
 		w.Header().Add("Content-Type", "text/html")
 		w.Header().Add("HX-Redirect", "/login")
 		w.WriteHeader(http.StatusOK)
+	}
+}
+
+func NotePostHandler(db *database.Database, s *scs.SessionManager) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		session := s.Get(r.Context(), "sessionData").(models.Session)
+
+		if err := r.ParseForm(); err != nil {
+			w.Header().Add("Content-Type", "text/plain")
+			w.Write([]byte(err.Error()))
+			return
+		}
+
+		title := r.PostForm.Get("title")
+		text := r.PostForm.Get("text")
+
+		_, err := db.CreateNote(models.Note{
+			UserId: session.UserId,
+			Title:  title,
+			Text:   text,
+		})
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Add("Content-Type", "text/html")
+		w.Write([]byte("successful"))
 	}
 }

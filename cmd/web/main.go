@@ -8,6 +8,7 @@ import (
 	"github.com/aadi-1024/notes/pkg/database"
 	"github.com/alexedwards/scs/v2"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-playground/validator/v10"
 )
 
 var app = &Config{}
@@ -27,6 +28,9 @@ func main() {
 	}
 
 	app.db = db
+
+	validator := validator.New(validator.WithRequiredStructEnabled())
+	app.validator = validator
 
 	SetupRouter(mux)
 	srv := http.Server{

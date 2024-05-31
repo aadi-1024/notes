@@ -6,7 +6,6 @@ type Session struct {
 	LoggedIn bool
 	UserId   int
 	User     *User
-	Notes    []*Note
 }
 
 func init() {

@@ -2,7 +2,7 @@
 -- +goose StatementBegin
 SELECT 'up SQL query';
 CREATE TABLE notes (
-    Id INT PRIMARY KEY,
+    Id SERIAL PRIMARY KEY,
     UserId INT NOT NULL,
     Title VARCHAR NOT NULL,
     Text VARCHAR,
@@ -14,6 +14,7 @@ CREATE TABLE notes (
 -- +goose Down
 -- +goose StatementBegin
 SELECT 'down SQL query';
+TRUNCATE notes;
 DROP TABLE notes;
 -- +goose StatementEnd
 
