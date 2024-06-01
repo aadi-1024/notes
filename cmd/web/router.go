@@ -13,9 +13,10 @@ func SetupRouter(mux *chi.Mux) {
 	mux.Post("/login", handlers.LoginPostHandler(app.db, app.session))
 	mux.Get("/register", handlers.RegisterPageHandler(template.Must(template.New("register.page.gohtml").ParseFiles("./templates/register.page.gohtml", "./templates/base.layout.gohtml"))))
 	mux.Post("/register", handlers.RegisterPostHandler(app.db, app.validator))
-	mux.Post("/notes", handlers.NotePostHandler(app.db, app.session))
 	mux.Mount("/", mux.Group(func(r chi.Router) {
 		r.Use(AuthMiddleware)
+		r.Get("/notes", handlers.GetAllNotes(app.db, app.session, template.Must(template.New("notes.partial.gohtml").ParseFiles("./templates/notes.partial.gohtml"))))
+		r.Post("/notes", handlers.NotePostHandler(app.db, app.session))
 		r.Get("/", handlers.IndexPageHandler(template.Must(template.New("home.page.gohtml").ParseFiles("./templates/home.page.gohtml", "./templates/base.layout.gohtml")), app.session))
 		r.Post("/logout", handlers.LogoutPostHandler(app.session))
 	}))

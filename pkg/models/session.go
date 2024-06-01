@@ -3,9 +3,7 @@ package models
 import "encoding/gob"
 
 type Session struct {
-	LoggedIn bool
-	UserId   int
-	User     *User
+	User *User
 }
 
 func init() {

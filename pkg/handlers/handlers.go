@@ -13,8 +13,10 @@ import (
 func IndexPageHandler(t *template.Template, s *scs.SessionManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Content-Type", "text/html")
-		session := s.Get(r.Context(), "sessionData").(models.Session)
-		t.ExecuteTemplate(w, "home.page.gohtml", session)
+		// session := s.Get(r.Context(), "sessionData").(models.Session)
+		t.ExecuteTemplate(w, "home.page.gohtml", map[string]any{
+			"LoggedIn": true,
+		})
 	}
 }
 
@@ -93,8 +95,7 @@ func LoginPostHandler(db *database.Database, s *scs.SessionManager) http.Handler
 
 		user.Id = id
 		session := models.Session{
-			LoggedIn: true,
-			User:     &user,
+			User: &user,
 		}
 
 		s.Put(r.Context(), "sessionData", session)
@@ -121,6 +122,21 @@ func LogoutPostHandler(s *scs.SessionManager) http.HandlerFunc {
 	}
 }
 
+func GetAllNotes(db *database.Database, s *scs.SessionManager, t *template.Template) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		userid := s.Get(r.Context(), "sessionData").(models.Session).User.Id
+
+		notes, err := db.GetAll(userid)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Add("Content-Type", "text/html")
+		t.ExecuteTemplate(w, "notes.partial.gohtml", notes)
+	}
+}
+
 func NotePostHandler(db *database.Database, s *scs.SessionManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		session := s.Get(r.Context(), "sessionData").(models.Session)
@@ -135,7 +151,7 @@ func NotePostHandler(db *database.Database, s *scs.SessionManager) http.HandlerF
 		text := r.PostForm.Get("text")
 
 		_, err := db.CreateNote(models.Note{
-			UserId: session.UserId,
+			UserId: session.User.Id,
 			Title:  title,
 			Text:   text,
 		})
