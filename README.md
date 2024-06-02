@@ -1,2 +1,2 @@
 ## Notes
-Over-engineered notes in Go, Echo, PostgreSQL, Templ and Bootstrap, with potentially HTMX in future
+Over-engineered notes in Go, chi router, PostgreSQL, Bootstrap, HTMX and alpineJS

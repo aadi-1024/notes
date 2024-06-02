@@ -8,13 +8,14 @@
 <br>
 <div class="mt-12 row">
   <div class="col-6 mx-auto" id="formDiv">
-    <form id="loginForm" class="align-middle" hx-post="/register">
+    <form id="loginForm" class="align-middle" hx-post="/register/new">
       <label for="inputUsername" class="form-label">Username</label>
       <input type="text" name="username" id="inputUsername" class="form-control">
       <label for="inputEmail" class="form-label">Email</label>
       <input type="text" name="email" id="inputEmail" class="form-control">
       <label for="inputPassword" class="form-label">Password</label>
       <input type="password" name="password" id="inputPassword" class="form-control">
+      {{.csrfField}}
       <button type="submit" class="btn btn-primary mx-auto mt-4">Submit</button>
     </form>
   </div>

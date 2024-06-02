@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/aadi-1024/notes/pkg/models"
@@ -26,8 +27,23 @@ func (d *Database) CreateNote(note models.Note) (int, error) {
 	return 0, err
 }
 
-func (d *Database) DeleteNote(note models.Note) error {
-	return nil
+func (d *Database) DeleteNote(id, uid int) error {
+	query := `delete from notes where Id = $1 and UserId = $2;`
+
+	tx, err := d.pool.BeginTx(context.Background(), pgx.TxOptions{})
+	defer tx.Rollback(context.Background())
+	if err != nil {
+		return err
+	}
+
+	res, err := tx.Exec(context.Background(), query, id, uid)
+	if err != nil {
+		return err
+	}
+	if res.RowsAffected() == 0 {
+		return errors.New("not found")
+	}
+	return tx.Commit(context.Background())
 }
 
 func (d *Database) UpdateNote(note models.Note) error {
@@ -52,6 +68,8 @@ func (d *Database) GetAll(userId int) ([]models.Note, error) {
 		return nil, err
 	}
 
+	defer rows.Close()
+
 	notes, err := pgx.CollectRows(rows, func(row pgx.CollectableRow) (models.Note, error) {
 		note := models.Note{}
 		err := row.Scan(&note.Id, &note.UserId, &note.Title, &note.Text, &note.CreatedAt)
@@ -68,6 +86,8 @@ func (d *Database) GetN(userId, page, n int) ([]models.Note, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	rows.Close()
 
 	notes, err := pgx.CollectRows(rows, func(row pgx.CollectableRow) (models.Note, error) {
 		note := models.Note{}

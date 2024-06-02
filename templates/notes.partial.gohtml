@@ -1,11 +1,15 @@
-{{range .}}
+{{$token := .csrfField}}
+{{range .notes}}
 
 <div class="row mt-3">
 <div class="card col-6 mx-auto">
   <div class="card-body">
     <h5 class="card-title">{{.Title}}</h5>
     <p class="card-text">{{.Text}}</p>
-    <button hx-get="/notes/delete/{{.Id}}" class="btn btn-primary">Delete</button>
+    <form hx-delete="/notes/{{.Id}}">
+      {{$token}}
+      <button class="btn btn-primary" type="submit">Delete</button>
+    </form>
   </div>
 </div>
 </div>

@@ -3,39 +3,54 @@ package handlers
 import (
 	"html/template"
 	"net/http"
+	"strconv"
 
 	"github.com/aadi-1024/notes/pkg/database"
 	"github.com/aadi-1024/notes/pkg/models"
 	"github.com/alexedwards/scs/v2"
+	"github.com/go-chi/chi/v5"
 	"github.com/go-playground/validator/v10"
+	"github.com/gorilla/csrf"
 )
 
 func IndexPageHandler(t *template.Template, s *scs.SessionManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Content-Type", "text/html")
 		// session := s.Get(r.Context(), "sessionData").(models.Session)
+		defer r.Body.Close()
 		t.ExecuteTemplate(w, "home.page.gohtml", map[string]any{
-			"LoggedIn": true,
+			"LoggedIn":       true,
+			csrf.TemplateTag: csrf.TemplateField(r),
 		})
 	}
 }
 
+
+
 func LoginPageHandler(t *template.Template) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		defer r.Body.Close()
 		w.Header().Add("Content-Type", "text/html")
-		t.ExecuteTemplate(w, "login.page.gohtml", nil)
+		t.ExecuteTemplate(w, "login.page.gohtml", map[string]any{
+			csrf.TemplateTag: csrf.TemplateField(r),
+		})
 	}
 }
 
 func RegisterPageHandler(t *template.Template) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		defer r.Body.Close()
 		w.Header().Add("Content-Type", "text/html")
-		t.ExecuteTemplate(w, "register.page.gohtml", nil)
+		t.ExecuteTemplate(w, "register.page.gohtml", map[string]any{
+			csrf.TemplateTag: csrf.TemplateField(r),
+		})
 	}
 }
 
 func RegisterPostHandler(db *database.Database, v *validator.Validate) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+
+		defer r.Body.Close()
 		err := r.ParseForm()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -69,6 +84,8 @@ func RegisterPostHandler(db *database.Database, v *validator.Validate) http.Hand
 
 func LoginPostHandler(db *database.Database, s *scs.SessionManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+
+		defer r.Body.Close()
 		err := r.ParseForm()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -105,8 +122,10 @@ func LoginPostHandler(db *database.Database, s *scs.SessionManager) http.Handler
 	}
 }
 
-func LogoutPostHandler(s *scs.SessionManager) http.HandlerFunc {
+func LogoutHandler(s *scs.SessionManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+
+		defer r.Body.Close()
 		if err := s.RenewToken(r.Context()); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -124,6 +143,8 @@ func LogoutPostHandler(s *scs.SessionManager) http.HandlerFunc {
 
 func GetAllNotes(db *database.Database, s *scs.SessionManager, t *template.Template) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+
+		defer r.Body.Close()
 		userid := s.Get(r.Context(), "sessionData").(models.Session).User.Id
 
 		notes, err := db.GetAll(userid)
@@ -131,14 +152,18 @@ func GetAllNotes(db *database.Database, s *scs.SessionManager, t *template.Templ
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-
 		w.Header().Add("Content-Type", "text/html")
-		t.ExecuteTemplate(w, "notes.partial.gohtml", notes)
+		t.ExecuteTemplate(w, "notes.partial.gohtml", map[string]any{
+			"notes":          notes,
+			csrf.TemplateTag: csrf.TemplateField(r),
+		})
 	}
 }
 
 func NotePostHandler(db *database.Database, s *scs.SessionManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+
+		defer r.Body.Close()
 		session := s.Get(r.Context(), "sessionData").(models.Session)
 
 		if err := r.ParseForm(); err != nil {
@@ -160,7 +185,31 @@ func NotePostHandler(db *database.Database, s *scs.SessionManager) http.HandlerF
 			return
 		}
 
+		w.Header().Add("HX-Refresh", "true")
 		w.Header().Add("Content-Type", "text/html")
 		w.Write([]byte("successful"))
+	}
+}
+
+func NoteDeleteHandler(d *database.Database, s *scs.SessionManager) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		defer r.Body.Close()
+		userId := s.Get(r.Context(), "sessionData").(models.Session).User.Id
+		id, err := strconv.Atoi(chi.URLParam(r, "id"))
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		err = d.DeleteNote(id, userId)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Add("HX-Refresh", "true")
+		w.WriteHeader(http.StatusOK)
 	}
 }
