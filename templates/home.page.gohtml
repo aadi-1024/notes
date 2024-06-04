@@ -7,7 +7,7 @@
 <div class="row" x-data="{ open: false }">
   <button class="btn btn-secondary col-1 mx-auto mt-3" @click="open = ! open">New Note</button>
     <div class="row" id="formDiv" x-show="open" x-cloak>
-      <form id="loginForm" class="mx-auto col-6 align-middle" hx-post="/notes/new" hx-swap="none">
+      <form id="loginForm" class="mx-auto col-6 align-middle" hx-post="/notes" hx-swap="none">
         <label for="inputTitle" class="form-label">Title</label>
         <input type="text" name="title" id="inputTitle" class="form-control">
         <label for="inputText" class="form-label">Text</label>

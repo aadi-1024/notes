@@ -5,13 +5,16 @@
 {{define "body"}}
 <div class="mt-5 row">
   <div class="col-6 mx-auto" id="formDiv">
-    <form id="loginForm" class="align-middle" hx-post="/login/new">
+    <form id="loginForm" class="align-middle" hx-post="/login">
       <label for="inputEmail" class="form-label">Email</label>
       <input type="text" name="email" id="inputEmail" class="form-control">
       <label for="inputPassword" class="form-label">Password</label>
       <input type="password" name="password" id="inputPassword" class="form-control">
       {{.csrfField}}
-      <button type="submit" class="btn btn-primary mx-auto mt-4">Submit</button>
+      <div class="row mt-4">
+        <button type="submit" class="btn btn-primary mx-auto col-2">Submit</button>
+        <a class="btn btn-success mx-auto col-2" href="/register">Register</a>
+      </div>
     </form>
   </div>
 </div>

@@ -25,8 +25,6 @@ func IndexPageHandler(t *template.Template, s *scs.SessionManager) http.HandlerF
 	}
 }
 
-
-
 func LoginPageHandler(t *template.Template) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()
@@ -154,8 +152,7 @@ func GetAllNotes(db *database.Database, s *scs.SessionManager, t *template.Templ
 		}
 		w.Header().Add("Content-Type", "text/html")
 		t.ExecuteTemplate(w, "notes.partial.gohtml", map[string]any{
-			"notes":          notes,
-			csrf.TemplateTag: csrf.TemplateField(r),
+			"notes": notes,
 		})
 	}
 }
