@@ -5,8 +5,9 @@
   <div class="card-body">
     <h5 class="card-title">{{.Title}}</h5>
     <p class="card-text">{{.Text}}</p>
-    <form hx-get="/delete/{{.Id}}">
-      <button class="btn btn-primary" type="submit">Delete</button>
+    <form hx-get="/delete/{{.Id}}" x-data="{ open: true }">
+      <button class="btn btn-danger" type="submit">Delete</button>
+      <button class="btn btn-secondary" type="button" hx-get="/notes/update/{{.Id}}" hx-swap="outerHTML">Edit</button>
     </form>
   </div>
 </div>

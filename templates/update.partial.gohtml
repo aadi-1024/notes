@@ -1,0 +1,10 @@
+<button class="btn btn-secondary" type="button" @click="open = ! open">Edit</button>
+<form id="loginForm" class="mx-auto align-middle" hx-put="/notes/update/{{.Id}}" hx-swap="none" x-show="open">
+  <label for="inputTitle" class="form-label">Title</label>
+    <input type="text" name="title" id="inputTitle" class="form-control">
+    <label for="inputText" class="form-label">Text</label>
+    <input type="textarea" name="text" id="inputText" class="form-control">
+    {{.csrfField}}
+    <button type="submit" class="btn btn-primary mx-auto mt-4 col-2">Submit</button>
+    <button type="button" class="btn btn-danger mx-auto mt-4 col-2" @click="open = ! open">Cancel</button>
+</form>

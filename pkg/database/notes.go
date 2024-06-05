@@ -47,7 +47,20 @@ func (d *Database) DeleteNote(id, uid int) error {
 }
 
 func (d *Database) UpdateNote(note models.Note) error {
-	return nil
+	query := `update notes set Title = $1, Text = $2 where Id = $3 and UserId = $4;`
+
+	tx, err := d.pool.BeginTx(context.Background(), pgx.TxOptions{})
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(context.Background())
+
+	_, err = tx.Exec(context.Background(), query, note.Title, note.Text, note.Id, note.UserId)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit(context.Background())
 }
 
 func (d *Database) GetNote(note models.Note) (models.Note, error) {
