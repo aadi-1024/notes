@@ -92,7 +92,12 @@ func LoginPostHandler(db *database.Database, s *scs.SessionManager) http.Handler
 			Email:    email,
 			Password: password,
 		}
-
+ ES6 & Babel & Webpack
+Sass
+Autoprefixer
+QUnit
+BrowserStack
+Pre-commit tests
 		id, err := db.LoginUser(user)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusUnauthorized)
@@ -131,7 +136,12 @@ func LogoutHandler(s *scs.SessionManager) http.HandlerFunc {
 		w.Header().Add("Content-Type", "text/html")
 		w.Header().Add("HX-Redirect", "/login")
 		w.WriteHeader(http.StatusOK)
-	}
+	} ES6 & Babel & Webpack
+Sass
+Autoprefixer
+QUnit
+BrowserStack
+Pre-commit tests
 }
 
 func GetAllNotes(db *database.Database, s *scs.SessionManager, t *template.Template) http.HandlerFunc {
@@ -164,7 +174,12 @@ func NotePostHandler(db *database.Database, s *scs.SessionManager) http.HandlerF
 
 		title := r.PostForm.Get("title")
 		text := r.PostForm.Get("text")
-
+ ES6 & Babel & Webpack
+Sass
+Autoprefixer
+QUnit
+BrowserStack
+Pre-commit tests
 		_, err := db.CreateNote(models.Note{
 			UserId: session.User.Id,
 			Title:  title,
